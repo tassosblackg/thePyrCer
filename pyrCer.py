@@ -24,6 +24,7 @@ import pycparser as pyc
 
 removeAble = ["#", "/*", "//"]
 new_file_sufix = "_after.c"
+path_2edit_files = "C_code_inputs/"
 functions_defined = {}
 
 
@@ -65,7 +66,7 @@ if __name__ == "__main__":
         filename = sys.argv[1]
         new_file = filename[:-2] + new_file_sufix
         print(filename, new_file)
-        remove_include(filename, new_file)
+        remove_include(filename, path_2edit_files + new_file)
         # parse the C file
         ast = pyc.parse_file(
             new_file,
