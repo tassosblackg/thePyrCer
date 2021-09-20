@@ -73,16 +73,45 @@ def find_def_functions(ast_data):
             )
         # elif isinstance(ast.ext[i], pyc.c_ast.Typedef):
         #     pass
-        print(functions_defined)
+        return functions_defined
+
+
+def function_calls(ast_data):
+    pass
+
+
+def save_stats(filename, func_def, func_calls):
+    """
+    Writes all the info in .txt format file
+
+    args:
+    ------
+    - filename: the actual .c file name string
+    - func_def: the dictionary with the defined functions
+    - func_calls: the function calls and counter
+    """
+    with open(filename[:-2] + "_analytics.txt", "w") as f:
+        f.write("# File: " + filename)
+        f.write("-" * 4 * len(filename))
+        f.write("Functions Defined: ")
+        f.write(
+            "{ Function Name : (function_return_type, [ (argument1_data_type,argument1_name), ]), }"
+        )
+        for func_name, fun_details in func_def.items():
+            f.write(str(func_name) + str(func_details))
+        f.write("\n*")
+        f.write("Function Calls : ")
+        for func_name, val in func_calls.items():
+            f.write(str(func_name) + "num of calls = " + str(val))
 
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         filename = sys.argv[1]
+        print_output_2f = sys.argv[2]
         new_file = filename[:-2] + new_file_sufix
         # edited file path
         new_file_path = path_2edit_files + new_file
-        print(filename, new_file)
         remove_include(filename, new_file_path)
         # parse the C file
         ast = pyc.parse_file(
@@ -91,6 +120,11 @@ if __name__ == "__main__":
             cpp_path="gcc",
             cpp_args=["-std=c99", "-E", r"-Iutils/fake_libc_include"],
         )
-        ast.show(showcoord=True)
-        print("AST type {}".format(type(ast)))
-        find_def_functions(ast)
+
+        func_def = find_def_functions(ast)
+        # func_calls = function_calls(ast)
+        if print_output_2f == "-f":
+            save_stats(func_def, func_calls)
+        else:
+            print("Defined Functions : \n", func_def)
+            print("Function Calls: \n", func_calls)
