@@ -17,7 +17,7 @@ _____________________________________________________________
 -----------------------------------------------------------------------------
 """
 
-
+import argparse
 import sys
 from pycparser import parse_file
 import pycparser as pyc
@@ -106,25 +106,47 @@ def save_stats(filename, func_def, func_calls):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        filename = sys.argv[1]
-        print_output_2f = sys.argv[2]
-        new_file = filename[:-2] + new_file_sufix
-        # edited file path
-        new_file_path = path_2edit_files + new_file
-        remove_include(filename, new_file_path)
-        # parse the C file
-        ast = pyc.parse_file(
-            new_file_path,
-            use_cpp=True,
-            cpp_path="gcc",
-            cpp_args=["-std=c99", "-E", r"-Iutils/fake_libc_include"],
-        )
+    menu_parser = argparse.ArgumentParser(
+        prog="c_code_parser",
+        description="Python program to parse C code and print statistics",
+    )
+    menu_parser.add_argument("input_file", type=str, help=" give .c file as input")
+    menu_parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        help="optional argument print output to a file (:f) or to console(:empty). Default print to console",
+        default="c",
+    )
+    args = menu_parser.parse_args()
+    print(args)
+    # if len() > 2:
+    filename = args.input_file
+    new_file = filename[:-2] + new_file_sufix
+    # edited file path
+    new_file_path = path_2edit_files + new_file
+    remove_include(filename, new_file_path)
+    # parse the C file
+    ast = pyc.parse_file(
+        new_file_path,
+        use_cpp=True,
+        cpp_path="gcc",
+        cpp_args=["-std=c99", "-E", r"-Iutils/fake_libc_include"],
+    )
 
-        func_def = find_def_functions(ast)
-        # func_calls = function_calls(ast)
-        if print_output_2f == "-f":
-            save_stats(func_def, func_calls)
-        else:
-            print("Defined Functions : \n", func_def)
-            print("Function Calls: \n", func_calls)
+    func_def = find_def_functions(ast)
+    # func_calls = function_calls(ast)
+    if args.output == "f":
+        # save_stats(func_def, func_calls)
+        print(args.output)
+    else:
+        print(
+            "\n -------------------------| Defined Functions | ----------------------------------------------------- :\n",
+        )
+        print("-" * 130)
+        print(
+            "\n |> Format= { function_name: ( return_type, [(arg1_data_type,arg1_name),(..,..)] ) } <|\n"
+        )
+        print("-" * 130)
+        print("\n", func_def)
+        # print("Function Calls: \n", func_calls)
