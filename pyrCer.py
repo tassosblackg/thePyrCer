@@ -26,6 +26,7 @@ removeAble = ["#", "/*", "//"]
 new_file_sufix = "_after.c"
 path_2edit_files = "C_code_inputs/"
 functions_defined = {}
+functions_called = {}
 
 
 def remove_include(file2read, file2write):
@@ -51,7 +52,7 @@ def find_def_functions(ast_data):
     ------
     - ast_data: The parsed AST from the .c file
 
-    returns: A dictionary with function's name, return type, arguments and arguments type
+    Creates/Update a dictionary with function's name, return type, arguments and arguments type
     e.g. functions_defined = {'function_name': (return_type, [ (arg1_type,arg1_name),] ) }
     """
     for ext_decl in ast.ext:
@@ -73,11 +74,30 @@ def find_def_functions(ast_data):
             )
         # elif isinstance(ast.ext[i], pyc.c_ast.Typedef):
         #     pass
-        return functions_defined
 
 
 def function_calls(ast_data):
-    pass
+    """
+    Find the function calls per function name
+    Creates a dictionary with function's name as a key and value its times of appearence
+
+    args:
+    -------
+
+
+    """
+    # print(len(ast_data.ext))
+    for ext_decl in ast_data.ext:
+        # print(dir(i.body.coord))
+        if isinstance(ext_decl, pyc.c_ast.FuncDef):
+            function_decl = ext_decl.decl  # function declaration
+            for b_item in ext_decl.body.block_items:
+                if isinstance(b_item, pyc.c_ast.FuncCall):
+                    func_call_id = b_item.name
+                    if func_call_id.name in functions_called:
+                        functions_called[func_call_id.name] += 1
+                    else:
+                        functions_called[func_call_id.name] = 1
 
 
 def save_stats(filename, func_def, func_calls):
@@ -134,19 +154,20 @@ if __name__ == "__main__":
         cpp_args=["-std=c99", "-E", r"-Iutils/fake_libc_include"],
     )
 
-    func_def = find_def_functions(ast)
-    # func_calls = function_calls(ast)
-    if args.output == "f":
-        # save_stats(func_def, func_calls)
-        print(args.output)
-    else:
-        print(
-            "\n -------------------------| Defined Functions | ----------------------------------------------------- :\n",
-        )
-        print("-" * 130)
-        print(
-            "\n |> Format= { function_name: ( return_type, [(arg1_data_type,arg1_name),(..,..)] ) } <|\n"
-        )
-        print("-" * 130)
-        print("\n", func_def)
-        # print("Function Calls: \n", func_calls)
+    find_def_functions(ast)
+    function_calls(ast)
+    print(functions_called)
+    # if args.output == "f":
+    #     # save_stats(func_def, func_calls)
+    #     print(args.output)
+    # else:
+    #     print(
+    #         "\n -------------------------| Defined Functions | ----------------------------------------------------- :\n",
+    #     )
+    #     print("-" * 130)
+    #     print(
+    #         "\n |> Format= { function_name: ( return_type, [(arg1_data_type,arg1_name),(..,..)] ) } <|\n"
+    #     )
+    #     print("-" * 130)
+    #     print("\n", func_def)
+    #     # print("Function Calls: \n", func_calls)
