@@ -7,6 +7,11 @@ Edit .c files and removes headers libraries (`#include`,`#define`,etc).
 Then use pycparser module for parsing C files and store them into an AST format.
 Where AST stands for Abstract Syntax Tree. After explore inside the AST and extract several interesting statistics like functions defined, number of calls per function, etc.
 
+## Requirements:
+Check `requirements.txt` file.
+> pip3 install requirements.txt
+
+
 ## Execution:
 
 ###### Option-1:
