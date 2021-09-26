@@ -18,7 +18,6 @@ _____________________________________________________________
 """
 
 import argparse
-import sys
 from pycparser import parse_file
 import pycparser as pyc
 
@@ -72,8 +71,6 @@ def find_def_functions(ast_data):
                 function_return_type,
                 params_namesNtypes,
             )
-        # elif isinstance(ast.ext[i], pyc.c_ast.Typedef):
-        #     pass
 
 
 def function_calls(ast_data):
@@ -86,9 +83,7 @@ def function_calls(ast_data):
 
 
     """
-    # print(len(ast_data.ext))
     for ext_decl in ast_data.ext:
-        # print(dir(i.body.coord))
         if isinstance(ext_decl, pyc.c_ast.FuncDef):
             function_decl = ext_decl.decl  # function declaration
             for b_item in ext_decl.body.block_items:
@@ -158,8 +153,6 @@ if __name__ == "__main__":
         default="c",
     )
     args = menu_parser.parse_args()
-    print(args)
-    # if len() > 2:
     filename = args.input_file
     new_file = filename[:-2] + new_file_sufix
     # edited file path
@@ -178,7 +171,6 @@ if __name__ == "__main__":
 
     if args.output == "f":
         save_stats(filename, functions_defined, functions_called)
-        # print(args.output)
     else:
         print(
             "\n -------------------------| Defined Functions | ----------------------------------------------------- :\n",
