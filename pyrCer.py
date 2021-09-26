@@ -110,19 +110,38 @@ def save_stats(filename, func_def, func_calls):
     - func_def: the dictionary with the defined functions
     - func_calls: the function calls and counter
     """
+    h1 = "Functions Defined: "
+    h2 = "Function Calls : "
+    format_info = "FORMAT => { Function Name : (function_return_type, [ (argument1_data_type,argument1_name), ]), }"
+
     with open(filename[:-2] + "_analytics.txt", "w") as f:
-        f.write("# File: " + filename)
-        f.write("-" * 4 * len(filename))
-        f.write("Functions Defined: ")
-        f.write(
-            "{ Function Name : (function_return_type, [ (argument1_data_type,argument1_name), ]), }"
-        )
-        for func_name, fun_details in func_def.items():
-            f.write(str(func_name) + str(func_details))
-        f.write("\n*")
-        f.write("Function Calls : ")
-        for func_name, val in func_calls.items():
-            f.write(str(func_name) + "num of calls = " + str(val))
+        f.write("# File: " + filename + "\n")
+        f.write("-" * 10 * len(filename) + "\n")
+        f.write(h1 + "\n")
+        f.write(format_info + "\n")
+        f.write("-" * 10 * len(format_info))
+        for index_i, (func_name, func_details) in enumerate(func_def.items()):
+            f.write(
+                "\n  ("
+                + str(index_i + 1)
+                + "). "
+                + str(func_name)
+                + str(func_details)
+                + "\n"
+            )
+        f.write("*" * 10 * len(format_info))
+        f.write("\n" + h2 + "\n")
+        for index_j, (func_name, val) in enumerate(func_calls.items()):
+            f.write(
+                "\n  ("
+                + str(index_j + 1)
+                + "). "
+                + str(func_name)
+                + "()"
+                + ", num of calls = "
+                + str(val)
+            )
+        f.write("\n \n \n" + "That's all folks!" + "\n" + "END")
 
 
 if __name__ == "__main__":
@@ -156,18 +175,24 @@ if __name__ == "__main__":
 
     find_def_functions(ast)
     function_calls(ast)
-    print(functions_called)
-    # if args.output == "f":
-    #     # save_stats(func_def, func_calls)
-    #     print(args.output)
-    # else:
-    #     print(
-    #         "\n -------------------------| Defined Functions | ----------------------------------------------------- :\n",
-    #     )
-    #     print("-" * 130)
-    #     print(
-    #         "\n |> Format= { function_name: ( return_type, [(arg1_data_type,arg1_name),(..,..)] ) } <|\n"
-    #     )
-    #     print("-" * 130)
-    #     print("\n", func_def)
-    #     # print("Function Calls: \n", func_calls)
+
+    if args.output == "f":
+        save_stats(filename, functions_defined, functions_called)
+        # print(args.output)
+    else:
+        print(
+            "\n -------------------------| Defined Functions | ----------------------------------------------------- :\n",
+        )
+        print("-" * 130)
+        print(
+            "\n |> Format= { function_name: ( return_type, [(arg1_data_type,arg1_name),(..,..)] ) } <|\n"
+        )
+        print("-" * 130)
+        print("\n", functions_defined)
+        print(
+            "\n\n -------------------------| Called Functions | ----------------------------------------------------- :\n",
+        )
+        print("-" * 130)
+        print("\n |> Format= { function_name: #appearences } <|\n")
+        print("-" * 130)
+        print("Functions Called -> \n", functions_called)
