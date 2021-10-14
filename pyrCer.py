@@ -16,7 +16,7 @@ _____________________________________________________________
 | https://github.com/eliben/pycparser/blob/master/pycparser/_c_ast.cfg      |
 -----------------------------------------------------------------------------
 """
-
+import os
 import argparse
 from pycparser import parse_file
 import pycparser as pyc
@@ -155,8 +155,10 @@ if __name__ == "__main__":
     args = menu_parser.parse_args()
     filename = args.input_file
     new_file = filename[:-2] + new_file_sufix
+
     # edited file path
-    new_file_path = path_2edit_files + new_file
+    new_file_path = path_2edit_files + os.path.basename(new_file)
+
     remove_include(filename, new_file_path)
     # parse the C file
     ast = pyc.parse_file(
