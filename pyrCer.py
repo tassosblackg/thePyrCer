@@ -24,6 +24,7 @@ import pycparser as pyc
 removeAble = ["#"]
 new_file_sufix = "_after.c"
 path_2edit_files = "C_code_inputs/"
+path2output_results = "Analytics_results_in_txt/"
 functions_defined = {}
 functions_called = {}
 
@@ -126,8 +127,9 @@ def save_stats(filename, func_def, func_calls):
     h1 = "Functions Defined: "
     h2 = "Function Calls : "
     format_info = "FORMAT => { Function Name : (function_return_type, [ (argument1_data_type,argument1_name), ]), }"
+    path2save = path2output_results + os.path.basename(filename)
 
-    with open(filename[:-2] + "_analytics.txt", "w") as f:
+    with open(path2save[:-2] + "_analytics.txt", "w") as f:
         f.write("# File: " + filename + "\n")
         f.write("-" * 10 * len(filename) + "\n")
         f.write(h1 + "\n")
