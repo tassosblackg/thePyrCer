@@ -83,13 +83,22 @@ def find_def_functions(ast_data):
                         params_namesNtypes.append(
                             (arg_type.type.names[0], param_decl.name)
                         )
-
-            function_return_type = function_decl.type.type.type.names[0]
-            # # insert into a dict
-            functions_defined[function_decl.name] = (
-                function_return_type,
-                params_namesNtypes,
+            func_return_datatype = function_decl.type.type
+            return_pointer_class = 0
+            while isinstance(func_return_datatype, pyc.c_ast.PtrDecl):
+                return_pointer_class += 1
+                func_return_datatype = func_return_datatype.type
+                if isinstance(func_return_datatype, pyc.c_ast.TypeDecl):
+                    break
+            print(
+                str(return_pointer_class) + "-PTR-" + func_return_datatype.type.names[0]
             )
+            # function_return_type = function_decl.type.type.type.names[0]
+            # # insert into a dict
+            # functions_defined[function_decl.name] = (
+            #     function_return_type,
+            #     params_namesNtypes,
+            # )
             # search and count function calls
             count_function_calls(ext_decl)
 
@@ -190,23 +199,23 @@ if __name__ == "__main__":
     # ast.show(showcoord=True)
 
     find_def_functions(ast)
-
-    if args.output == "f":
-        save_stats(filename, functions_defined, functions_called)
-    else:
-        print(
-            "\n --------------------------------------- | Defined Functions | ----------------------------------------------------- :\n",
-        )
-        print("-" * 130)
-        print(
-            "\n |> Format= { function_name: ( return_type, [(arg1_data_type,arg1_name),(..,..)] ) } <|\n"
-        )
-        print("-" * 130)
-        print("\n", functions_defined)
-        print(
-            "\n\n -------------------------------------- | Called Functions | ----------------------------------------------------- :\n",
-        )
-        print("-" * 130)
-        print("\n |> Format= { function_name: #appearences } <|\n")
-        print("-" * 130)
-        print("Functions Called -> \n", functions_called)
+    #
+    # if args.output == "f":
+    #     save_stats(filename, functions_defined, functions_called)
+    # else:
+    #     print(
+    #         "\n --------------------------------------- | Defined Functions | ----------------------------------------------------- :\n",
+    #     )
+    #     print("-" * 130)
+    #     print(
+    #         "\n |> Format= { function_name: ( return_type, [(arg1_data_type,arg1_name),(..,..)] ) } <|\n"
+    #     )
+    #     print("-" * 130)
+    #     print("\n", functions_defined)
+    #     print(
+    #         "\n\n -------------------------------------- | Called Functions | ----------------------------------------------------- :\n",
+    #     )
+    #     print("-" * 130)
+    #     print("\n |> Format= { function_name: #appearences } <|\n")
+    #     print("-" * 130)
+    #     print("Functions Called -> \n", functions_called)
