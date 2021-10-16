@@ -62,11 +62,29 @@ def find_def_functions(ast_data):
             if function_args is not None:
                 for param_decl in function_decl.type.args.params:
                     # append a tuple (arg_data_type,arg_name)
-                    params_namesNtypes.append(
-                        (param_decl.type.type.names[0], param_decl.name)
-                    )
+                    arg_type = param_decl.type
+                    pointer_class = 0  # counter single, double etc pointer
+
+                    # while argument type is pointer(single,double,etc)
+                    while isinstance(arg_type, pyc.c_ast.PtrDecl):
+                        pointer_class += 1
+                        arg_type = arg_type.type  # get next type
+                        if isinstance(arg_type, pyc.c_ast.TypeDecl):
+                            break
+                    if pointer_class >= 1:
+                        params_namesNtypes.append(
+                            (
+                                str(pointer_class) + "-Ptr-" + arg_type.type.names[0],
+                                param_decl.name,
+                            )
+                        )
+                    else:
+                        params_namesNtypes.append(
+                            (arg_type.type.names[0], param_decl.name)
+                        )
+
             function_return_type = function_decl.type.type.type.names[0]
-            # insert into a dict
+            # # insert into a dict
             functions_defined[function_decl.name] = (
                 function_return_type,
                 params_namesNtypes,
@@ -167,9 +185,9 @@ if __name__ == "__main__":
         cpp_path="gcc",
         cpp_args=["-std=c99", "-E", r"-Iutils/fake_libc_include"],
     )
+    # ast.show(showcoord=True)
 
     find_def_functions(ast)
-    # count_function_calls(ast)
 
     if args.output == "f":
         save_stats(filename, functions_defined, functions_called)
