@@ -60,45 +60,40 @@ def find_def_functions(ast_data):
             function_decl = ext_decl.decl  # function declaration
             function_args = function_decl.type.args
             params_namesNtypes = []
+            # Traverse function's argument list
             if function_args is not None:
                 for param_decl in function_decl.type.args.params:
-                    # append a tuple (arg_data_type,arg_name)
-                    arg_type = param_decl.type
-                    pointer_class = 0  # counter single, double etc pointer
+                    # Argument's DataType Pointer or Not
+                    pointer_class, arg_data_type = detect_pointer_data_types(
+                        param_decl.type
+                    )
+                    # Argument's DataType string
+                    arg_data_type_str = (
+                        str(pointer_class) + "-Ptr-" + arg_data_type.type.names[0]
+                        if pointer_class >= 1
+                        else arg_data_type.type.names[0]
+                    )
 
-                    # while argument type is pointer(single,double,etc)
-                    while isinstance(arg_type, pyc.c_ast.PtrDecl):
-                        pointer_class += 1
-                        arg_type = arg_type.type  # get next type
-                        if isinstance(arg_type, pyc.c_ast.TypeDecl):
-                            break
-                    if pointer_class >= 1:
-                        params_namesNtypes.append(
-                            (
-                                str(pointer_class) + "-Ptr-" + arg_type.type.names[0],
-                                param_decl.name,
-                            )
-                        )
-                    else:
-                        params_namesNtypes.append(
-                            (arg_type.type.names[0], param_decl.name)
-                        )
-            func_return_datatype = function_decl.type.type
-            return_pointer_class = 0
-            while isinstance(func_return_datatype, pyc.c_ast.PtrDecl):
-                return_pointer_class += 1
-                func_return_datatype = func_return_datatype.type
-                if isinstance(func_return_datatype, pyc.c_ast.TypeDecl):
-                    break
-            print(
-                str(return_pointer_class) + "-PTR-" + func_return_datatype.type.names[0]
+                    # append a tuple (arg_data_type,arg_name)
+                    params_namesNtypes.append((arg_data_type_str, param_decl.name))
+
+            # Function's Return DataType Pointer or Not
+            return_pointer_class, func_return_datatype = detect_pointer_data_types(
+                function_decl.type.type
             )
-            # function_return_type = function_decl.type.type.type.names[0]
-            # # insert into a dict
-            # functions_defined[function_decl.name] = (
-            #     function_return_type,
-            #     params_namesNtypes,
-            # )
+            # Function's Return DataType string
+            func_return_datatype_str = (
+                str(return_pointer_class) + "-Ptr-" + func_return_datatype.type.names[0]
+                if return_pointer_class >= 1
+                else func_return_datatype.type.names[0]
+            )
+
+            # insert function into a dict
+            functions_defined[function_decl.name] = (
+                func_return_datatype_str,
+                params_namesNtypes,
+            )
+
             # search and count function calls
             count_function_calls(ext_decl)
 
@@ -110,7 +105,7 @@ def count_function_calls(ext_decl):
 
     args:
     -------
-
+    - ext_decl : AST ext object from pycparser
 
     """
 
@@ -121,6 +116,29 @@ def count_function_calls(ext_decl):
                 functions_called[func_call_id.name] += 1
             else:
                 functions_called[func_call_id.name] = 1
+
+
+def detect_pointer_data_types(ast_dtype):
+    """
+    A function that detect if data type in AST is pointer, keep moving down the AST until reaching TypeDecl object
+
+    args:
+    ------
+    - ast_dtype: the AST level where type isinstance of PtrDecl
+
+    returns:
+    - pointer_class:    the size of pointer (#times seeing PtrDecl, till TypeDecl hits).
+    - datatype: An TypeDecl object from AST (end condition).
+    """
+    datatype = ast_dtype
+    pointer_class = 0
+    while isinstance(datatype, pyc.c_ast.PtrDecl):
+        pointer_class += 1
+        datatype = datatype.type
+        if isinstance(datatype, pyc.c_ast.TypeDecl):
+            break
+
+    return pointer_class, datatype
 
 
 def save_stats(filename, func_def, func_calls):
@@ -199,23 +217,23 @@ if __name__ == "__main__":
     # ast.show(showcoord=True)
 
     find_def_functions(ast)
-    #
-    # if args.output == "f":
-    #     save_stats(filename, functions_defined, functions_called)
-    # else:
-    #     print(
-    #         "\n --------------------------------------- | Defined Functions | ----------------------------------------------------- :\n",
-    #     )
-    #     print("-" * 130)
-    #     print(
-    #         "\n |> Format= { function_name: ( return_type, [(arg1_data_type,arg1_name),(..,..)] ) } <|\n"
-    #     )
-    #     print("-" * 130)
-    #     print("\n", functions_defined)
-    #     print(
-    #         "\n\n -------------------------------------- | Called Functions | ----------------------------------------------------- :\n",
-    #     )
-    #     print("-" * 130)
-    #     print("\n |> Format= { function_name: #appearences } <|\n")
-    #     print("-" * 130)
-    #     print("Functions Called -> \n", functions_called)
+
+    if args.output == "f":
+        save_stats(filename, functions_defined, functions_called)
+    else:
+        print(
+            "\n --------------------------------------- | Defined Functions | ----------------------------------------------------- :\n",
+        )
+        print("-" * 130)
+        print(
+            "\n |> Format= { function_name: ( return_type, [(arg1_data_type,arg1_name),(..,..)] ) } <|\n"
+        )
+        print("-" * 130)
+        print("\n", functions_defined)
+        print(
+            "\n\n -------------------------------------- | Called Functions | ----------------------------------------------------- :\n",
+        )
+        print("-" * 130)
+        print("\n |> Format= { function_name: #appearences } <|\n")
+        print("-" * 130)
+        print("Functions Called -> \n", functions_called)
