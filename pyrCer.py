@@ -21,6 +21,15 @@ import argparse
 from pycparser import parse_file
 import pycparser as pyc
 
+addAble = """typedef struct {
+char *fpos; /* Current position of file pointer (absolute address) */
+void *base; /* Pointer to the base of the file */
+unsigned short handle; /* File handle */
+short flags; /* Flags (see FileFlags) */
+short unget; /* 1-byte buffer for ungetc (b15=1 if non-empty) */
+unsigned long alloc; /* Number of currently allocated bytes for the file */
+unsigned short buffincrement; /* Number of bytes allocated at once */
+} FILE;"""
 removeAble = ["#"]
 new_file_sufix = "_after.c"
 path_2edit_files = "C_code_inputs/"
@@ -39,6 +48,7 @@ def remove_include(file2read, file2write):
     """
     with open(file2read, "r") as f:
         with open(file2write, "w") as output:
+            output.write(addAble + "\n")
             for line in f:
                 if line[0] not in removeAble:
                     output.write(line)
