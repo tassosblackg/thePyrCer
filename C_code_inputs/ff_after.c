@@ -1,3 +1,12 @@
+typedef struct {
+char *fpos; /* Current position of file pointer (absolute address) */
+void *base; /* Pointer to the base of the file */
+unsigned short handle; /* File handle */
+short flags; /* Flags (see FileFlags) */
+short unget; /* 1-byte buffer for ungetc (b15=1 if non-empty) */
+unsigned long alloc; /* Number of currently allocated bytes for the file */
+unsigned short buffincrement; /* Number of bytes allocated at once */
+} FILE;
 
 void convert(int thousands, int hundreds, int tens, int ones)
 {
